@@ -1,3 +1,5 @@
+import 'dart:isolate';
+
 import 'package:flutter/material.dart';
 
 void main() {
@@ -57,8 +59,13 @@ class _MyHomePageState extends State<MyHomePage> {
               style: Theme.of(context).textTheme.headlineMedium,
             ),
             ElevatedButton(
-                onPressed: () async => _computeHeavyTask(),
-                child: const Text('Compute Heavy Task'))
+              onPressed: () async => _computeHeavyTaskWithoutIsolate(),
+              child: const Text('Compute Without Isolate'),
+            ),
+            ElevatedButton(
+              onPressed: () async => _computeHeavyTaskWithIsolate(),
+              child: const Text('Compute With Isolate'),
+            ),
           ],
         ),
       ),
@@ -70,7 +77,7 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  Future<void> _computeHeavyTask() async {
+  Future<void> _computeHeavyTaskWithoutIsolate() async {
     // Using the main isolate (no separate isolate)
     int sum = 0;
     for (int i = 0; i < 999999999; i++) {
@@ -78,18 +85,18 @@ class _MyHomePageState extends State<MyHomePage> {
     }
 
     debugPrint('Result without isolate: $sum');
+  }
 
-    // Uncomment this part to use an isolate for comparison
-    /*
-  int result = await Isolate.run(() {
-    int sum = 0;
-    for (int i = 0; i < 999999999; i++) {
-      sum += i;
-    }
-    return sum;
-  });
+  Future<void> _computeHeavyTaskWithIsolate() async {
+    // Using a separate isolate for computation
+    int result = await Isolate.run(() {
+      int sum = 0;
+      for (int i = 0; i < 999999999; i++) {
+        sum += i;
+      }
+      return sum;
+    });
 
-  debugPrint('Result from isolate: $result');
-  */
+    debugPrint('Result from isolate: $result');
   }
 }
